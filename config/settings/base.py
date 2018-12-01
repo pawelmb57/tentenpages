@@ -3,6 +3,7 @@ Base settings to build other settings files upon.
 """
 
 import environ
+from django.contrib import admin
 
 ROOT_DIR = environ.Path(__file__) - 3  # (bootcamp/config/settings/base.py - 3 = bootcamp/)
 APPS_DIR = ROOT_DIR.path('bootcamp')
@@ -38,10 +39,10 @@ USE_TZ = True
 # DATABASES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
-DATABASES = {
-    'default': env.db('DATABASE_URL'),
-}
-DATABASES['default']['ATOMIC_REQUESTS'] = True
+# DATABASES = {
+#     'default': env.db('DATABASE_URL'),
+# }
+# DATABASES['default']['ATOMIC_REQUESTS'] = True
 
 # URLS
 # ------------------------------------------------------------------------------
@@ -229,7 +230,7 @@ EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.smtp.Ema
 # ADMIN
 # ------------------------------------------------------------------------------
 # Django Admin URL regex.
-ADMIN_URL = r'^admin/'
+# ADMIN_URL = r'^admin/'
 # https://docs.djangoproject.com/en/dev/ref/settings/#admins
 # ADMINS = [
 #     ("""Vitor Freitas""", 'vitor-freitas@example.com'),

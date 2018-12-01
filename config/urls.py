@@ -4,6 +4,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
+from django.urls import path
 
 from graphene_django.views import GraphQLView
 
@@ -13,7 +14,8 @@ urlpatterns = [
     url(r'^about/$',
         TemplateView.as_view(template_name='pages/about.html'), name='about'),
     # Django Admin, use {% url 'admin:index' %}
-    url(settings.ADMIN_URL, admin.site.urls),
+    # url(settings.ADMIN_URL, admin.site.urls),
+    path('admin/', admin.site.urls),
     # User management
     url(r'^users/', include('bootcamp.users.urls', namespace='users')),
     url(r'^accounts/', include('allauth.urls')),

@@ -3,6 +3,10 @@ import logging
 from .base import *  # noqa
 from .base import env
 
+import django_heroku
+import dj_database_url
+
+
 # GENERAL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
@@ -12,9 +16,9 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['vitor@freitas.com trybootcam
 
 # DATABASES
 # ------------------------------------------------------------------------------
-DATABASES['default'] = env.db('DATABASE_URL')  # noqa F405
-DATABASES['default']['ATOMIC_REQUESTS'] = True  # noqa F405
-DATABASES['default']['CONN_MAX_AGE'] = env.int('CONN_MAX_AGE', default=60)  # noqa F405
+# DATABASES['default'] = env.db('DATABASE_URL')  # noqa F405
+# DATABASES['default']['ATOMIC_REQUESTS'] = True  # noqa F405
+# DATABASES['default']['CONN_MAX_AGE'] = env.int('CONN_MAX_AGE', default=60)  # noqa F405
 
 # CACHES
 # ------------------------------------------------------------------------------
@@ -63,23 +67,23 @@ X_FRAME_OPTIONS = 'DENY'
 # STORAGES
 # ------------------------------------------------------------------------------
 # https://django-storages.readthedocs.io/en/latest/#installation
-INSTALLED_APPS += ['storages']  # noqa F405
-# https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
-AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
-# https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
-AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
-# https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
-AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
-# https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
-AWS_AUTO_CREATE_BUCKET = True
-# https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
-AWS_QUERYSTRING_AUTH = False
-# DO NOT change these unless you know what you're doing.
-_AWS_EXPIRY = 60 * 60 * 24 * 7
-# https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
-AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': f'max-age={_AWS_EXPIRY}, s-maxage={_AWS_EXPIRY}, must-revalidate',
-}
+# INSTALLED_APPS += ['storages']  # noqa F405
+# # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
+# AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+# # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
+# AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+# # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
+# AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+# # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
+# AWS_AUTO_CREATE_BUCKET = True
+# # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
+# AWS_QUERYSTRING_AUTH = False
+# # DO NOT change these unless you know what you're doing.
+# _AWS_EXPIRY = 60 * 60 * 24 * 7
+# # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
+# AWS_S3_OBJECT_PARAMETERS = {
+#     'CacheControl': f'max-age={_AWS_EXPIRY}, s-maxage={_AWS_EXPIRY}, must-revalidate',
+# }
 
 # STATIC
 # ------------------------
@@ -87,8 +91,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # MEDIA
 # ------------------------------------------------------------------------------
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-MEDIA_URL = f'https://s3.amazonaws.com/{AWS_STORAGE_BUCKET_NAME}/'
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# MEDIA_URL = f'https://s3.amazonaws.com/{AWS_STORAGE_BUCKET_NAME}/'
 
 # TEMPLATES
 # ------------------------------------------------------------------------------
@@ -118,18 +122,18 @@ EMAIL_SUBJECT_PREFIX = env('EMAIL_SUBJECT_PREFIX', default='[Bootcamp]')
 # ADMIN
 # ------------------------------------------------------------------------------
 # Django Admin URL regex.
-ADMIN_URL = env('ADMIN_URL')
+# ADMIN_URL = env('ADMIN_URL')
 
 # Anymail (Mailgun)
 # ------------------------------------------------------------------------------
 # https://anymail.readthedocs.io/en/stable/installation/#installing-anymail
-INSTALLED_APPS += ['anymail']  # noqa F405
-EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'
-# https://anymail.readthedocs.io/en/stable/installation/#anymail-settings-reference
-ANYMAIL = {
-    'MAILGUN_API_KEY': env('MAILGUN_API_KEY'),
-    'MAILGUN_SENDER_DOMAIN': env('MAILGUN_SENDER_DOMAIN')
-}
+# INSTALLED_APPS += ['anymail']  # noqa F405
+# EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'
+# # https://anymail.readthedocs.io/en/stable/installation/#anymail-settings-reference
+# ANYMAIL = {
+#     'MAILGUN_API_KEY': env('MAILGUN_API_KEY'),
+#     'MAILGUN_SENDER_DOMAIN': env('MAILGUN_SENDER_DOMAIN')
+# }
 
 # WhiteNoise
 # ------------------------------------------------------------------------------
@@ -145,61 +149,77 @@ MIDDLEWARE = ['raven.contrib.django.raven_compat.middleware.SentryResponseErrorI
 
 # Sentry
 # ------------------------------------------------------------------------------
-SENTRY_DSN = env('SENTRY_DSN')
-SENTRY_CLIENT = env('SENTRY_CLIENT', default='raven.contrib.django.raven_compat.DjangoClient')
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'root': {
-        'level': 'WARNING',
-        'handlers': ['sentry'],
-    },
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s '
-                      '%(process)d %(thread)d %(message)s'
-        },
-    },
-    'handlers': {
-        'sentry': {
-            'level': 'ERROR',
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-        },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
-        }
-    },
-    'loggers': {
-        'django.db.backends': {
-            'level': 'ERROR',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-        'raven': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-        'sentry.errors': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-        'django.security.DisallowedHost': {
-            'level': 'ERROR',
-            'handlers': ['console', 'sentry'],
-            'propagate': False,
-        },
-    },
-}
-
-SENTRY_CELERY_LOGLEVEL = env.int('SENTRY_LOG_LEVEL', logging.INFO)
-RAVEN_CONFIG = {
-    'CELERY_LOGLEVEL': env.int('SENTRY_LOG_LEVEL', logging.INFO),
-    'DSN': SENTRY_DSN
-}
+# SENTRY_DSN = env('SENTRY_DSN')
+# SENTRY_CLIENT = env('SENTRY_CLIENT', default='raven.contrib.django.raven_compat.DjangoClient')
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': True,
+#     'root': {
+#         'level': 'WARNING',
+#         'handlers': ['sentry'],
+#     },
+#     'formatters': {
+#         'verbose': {
+#             'format': '%(levelname)s %(asctime)s %(module)s '
+#                       '%(process)d %(thread)d %(message)s'
+#         },
+#     },
+#     'handlers': {
+#         'sentry': {
+#             'level': 'ERROR',
+#             'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+#         },
+#         'console': {
+#             'level': 'DEBUG',
+#             'class': 'logging.StreamHandler',
+#             'formatter': 'verbose'
+#         }
+#     },
+#     'loggers': {
+#         'django.db.backends': {
+#             'level': 'ERROR',
+#             'handlers': ['console'],
+#             'propagate': False,
+#         },
+#         'raven': {
+#             'level': 'DEBUG',
+#             'handlers': ['console'],
+#             'propagate': False,
+#         },
+#         'sentry.errors': {
+#             'level': 'DEBUG',
+#             'handlers': ['console'],
+#             'propagate': False,
+#         },
+#         'django.security.DisallowedHost': {
+#             'level': 'ERROR',
+#             'handlers': ['console', 'sentry'],
+#             'propagate': False,
+#         },
+#     },
+# }
+#
+# SENTRY_CELERY_LOGLEVEL = env.int('SENTRY_LOG_LEVEL', logging.INFO)
+# RAVEN_CONFIG = {
+#     'CELERY_LOGLEVEL': env.int('SENTRY_LOG_LEVEL', logging.INFO),
+#     'DSN': SENTRY_DSN
+# }
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+SECRET_KEY = '3d305kajG5Jy8KBafCMpHwDIsNi0SqVaW'
+
+DATABASES = {
+'default': {
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': 'd8itd9722djup5',
+    'USER': 'bjpgvelgroxszc',
+    'PASSWORD': 'd2a71e550b5d1207360354327998d40e0e3efde30f0047fece2a59af708565f5',
+    'HOST': 'ec2-23-23-80-20.compute-1.amazonaws.com',
+    'PORT': '5432',
+}
+}
+
+db_from_env = dj_database_url.config(conn_max_age=500, ssl_require=True)
+DATABASES['default'].update(db_from_env)
