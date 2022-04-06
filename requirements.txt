@@ -62,7 +62,7 @@ s3transfer==0.1.13
 singledispatch==3.4.0.3
 six==1.11.0
 sorl-thumbnail==12.5.0
-Twisted==18.9.0
+Twisted==21.2.0
 txaio==18.8.1
 Unidecode==0.4.21
 urllib3==1.24.1
